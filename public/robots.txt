@@ -1,0 +1,11 @@
+# Allow all crawlers
+User-agent: *
+Allow: /
+
+# Disallow private pages
+Disallow: /dashboard
+Disallow: /login
+Disallow: /register
+
+# Sitemap
+Sitemap: https://thetransporter.biwas.xyz/sitemap.xml
