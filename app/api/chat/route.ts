@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   START,
   END,
-  MessageAnnotation,
+  MessagesAnnotation,
   StateGraph,
   MemorySaver,
 } from "@langchain/langgraph";
