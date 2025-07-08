@@ -1,17 +1,19 @@
-import Link from "next/link"
-import Image from "next/image"
-import { Button } from "@/components/ui/button"
-import { ArrowRight, Shield, Clock, Eye, Lock } from "lucide-react"
-import { Header } from "@/components/header"
-import { SEO } from "@/components/seo"
-import { STRUCTURED_DATA, SEO_KEYWORDS } from "@/lib/constants"
+"use client";
+import Link from "next/link";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { ArrowRight, Shield, Clock, Eye, Lock } from "lucide-react";
+import { Header } from "@/components/header";
+import { SEO } from "@/components/seo";
+import { STRUCTURED_DATA, SEO_KEYWORDS } from "@/lib/constants";
+import BubbleChat from "@/components/BubbleChat";
 
 export default function Home() {
   // Combine structured data for the homepage
   const structuredData = {
     ...STRUCTURED_DATA.organization,
     mainEntity: STRUCTURED_DATA.softwareApplication,
-  }
+  };
 
   return (
     <>
@@ -23,16 +25,25 @@ export default function Home() {
 
       <div className="flex min-h-screen flex-col">
         <Header />
+        <BubbleChat
+          position="bottom-right"
+          bubbleColor="bg-green-600"
+          chatTitle="Support Assistant"
+          welcomeMessage="Hello! How can I help you today?"
+          apiEndpoint="/api/chat"
+        />
         <main className="flex-1">
           {/* Hero Section - Split Design */}
           <section className="container py-12 md:py-20">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
               <div className="order-2 md:order-1">
                 <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">
-                  Secure file delivery with <span className="text-primary">no questions asked</span>
+                  Secure file delivery with{" "}
+                  <span className="text-primary">no questions asked</span>
                 </h1>
                 <p className="text-lg text-muted-foreground mb-8">
-                  Upload, share, and protect your files with military-grade security and time-limited access.
+                  Upload, share, and protect your files with military-grade
+                  security and time-limited access.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
                   <Link href="/upload">
@@ -41,7 +52,11 @@ export default function Home() {
                     </Button>
                   </Link>
                   <Link href="#how-it-works">
-                    <Button size="lg" variant="outline" className="w-full sm:w-auto">
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      className="w-full sm:w-auto"
+                    >
                       How it works
                     </Button>
                   </Link>
@@ -61,7 +76,9 @@ export default function Home() {
                   <div className="absolute bottom-0 left-0 right-0 p-6 z-20">
                     <div className="flex items-center gap-2 text-white">
                       <Lock className="h-5 w-5" />
-                      <span className="font-semibold">Military-grade security</span>
+                      <span className="font-semibold">
+                        Military-grade security
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -72,7 +89,9 @@ export default function Home() {
           {/* Features Section */}
           <section className="bg-muted py-16">
             <div className="container">
-              <h2 className="text-3xl font-bold text-center mb-12">Professional-grade file sharing</h2>
+              <h2 className="text-3xl font-bold text-center mb-12">
+                Professional-grade file sharing
+              </h2>
               <div className="grid gap-8 md:grid-cols-3">
                 <div className="bg-background rounded-lg p-6 shadow-sm">
                   <div className="rounded-full bg-primary/10 p-4 w-fit mb-4">
@@ -80,22 +99,31 @@ export default function Home() {
                   </div>
                   <h3 className="text-xl font-semibold mb-2">Secure Sharing</h3>
                   <p className="text-muted-foreground">
-                    Files are stored in private storage and only accessible via secure, time-limited links.
+                    Files are stored in private storage and only accessible via
+                    secure, time-limited links.
                   </p>
                 </div>
                 <div className="bg-background rounded-lg p-6 shadow-sm">
                   <div className="rounded-full bg-primary/10 p-4 w-fit mb-4">
                     <Clock className="h-6 w-6 text-primary" />
                   </div>
-                  <h3 className="text-xl font-semibold mb-2">Time-Limited Access</h3>
-                  <p className="text-muted-foreground">Set expiration dates for your shared files.</p>
+                  <h3 className="text-xl font-semibold mb-2">
+                    Time-Limited Access
+                  </h3>
+                  <p className="text-muted-foreground">
+                    Set expiration dates for your shared files.
+                  </p>
                 </div>
                 <div className="bg-background rounded-lg p-6 shadow-sm">
                   <div className="rounded-full bg-primary/10 p-4 w-fit mb-4">
                     <Eye className="h-6 w-6 text-primary" />
                   </div>
-                  <h3 className="text-xl font-semibold mb-2">Download Limits</h3>
-                  <p className="text-muted-foreground">Restrict the number of times a file can be downloaded.</p>
+                  <h3 className="text-xl font-semibold mb-2">
+                    Download Limits
+                  </h3>
+                  <p className="text-muted-foreground">
+                    Restrict the number of times a file can be downloaded.
+                  </p>
                 </div>
               </div>
             </div>
@@ -106,7 +134,8 @@ export default function Home() {
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold mb-4">How It Works</h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
-                The Transporter delivers your files securely and efficiently, just like in the movie.
+                The Transporter delivers your files securely and efficiently,
+                just like in the movie.
               </p>
             </div>
 
@@ -137,9 +166,12 @@ export default function Home() {
                       <span className="font-bold text-primary">1</span>
                     </div>
                     <div>
-                      <h3 className="text-xl font-semibold mb-2">Upload Your File</h3>
+                      <h3 className="text-xl font-semibold mb-2">
+                        Upload Your File
+                      </h3>
                       <p className="text-muted-foreground">
-                        Upload any file to our secure platform. Your files are encrypted and stored safely.
+                        Upload any file to our secure platform. Your files are
+                        encrypted and stored safely.
                       </p>
                     </div>
                   </div>
@@ -149,9 +181,12 @@ export default function Home() {
                       <span className="font-bold text-primary">2</span>
                     </div>
                     <div>
-                      <h3 className="text-xl font-semibold mb-2">Set Security Rules</h3>
+                      <h3 className="text-xl font-semibold mb-2">
+                        Set Security Rules
+                      </h3>
                       <p className="text-muted-foreground">
-                        Define how long your file is available and how many times it can be downloaded.
+                        Define how long your file is available and how many
+                        times it can be downloaded.
                       </p>
                     </div>
                   </div>
@@ -161,9 +196,12 @@ export default function Home() {
                       <span className="font-bold text-primary">3</span>
                     </div>
                     <div>
-                      <h3 className="text-xl font-semibold mb-2">Share the Link</h3>
+                      <h3 className="text-xl font-semibold mb-2">
+                        Share the Link
+                      </h3>
                       <p className="text-muted-foreground">
-                        Share the secure link with anyone who needs access to your file.
+                        Share the secure link with anyone who needs access to
+                        your file.
                       </p>
                     </div>
                   </div>
@@ -173,9 +211,12 @@ export default function Home() {
                       <span className="font-bold text-primary">4</span>
                     </div>
                     <div>
-                      <h3 className="text-xl font-semibold mb-2">Track Downloads</h3>
+                      <h3 className="text-xl font-semibold mb-2">
+                        Track Downloads
+                      </h3>
                       <p className="text-muted-foreground">
-                        Monitor who accesses your files and receive notifications when they're downloaded.
+                        Monitor who accesses your files and receive
+                        notifications when they're downloaded.
                       </p>
                     </div>
                   </div>
@@ -188,9 +229,12 @@ export default function Home() {
           <section className="bg-primary/10 py-16">
             <div className="container">
               <div className="max-w-3xl mx-auto text-center">
-                <h2 className="text-3xl font-bold mb-4">Ready to transport your files?</h2>
+                <h2 className="text-3xl font-bold mb-4">
+                  Ready to transport your files?
+                </h2>
                 <p className="text-lg mb-8">
-                  Join thousands of professionals who trust The Transporter for secure file sharing.
+                  Join thousands of professionals who trust The Transporter for
+                  secure file sharing.
                 </p>
                 <Link href="/register">
                   <Button size="lg" className="gap-2">
@@ -201,18 +245,28 @@ export default function Home() {
             </div>
           </section>
         </main>
-
         <footer className="border-t py-6 bg-secondary text-white">
           <div className="container flex flex-col sm:flex-row justify-between items-center gap-4 px-4">
-            <p className="text-sm text-gray-400">© {new Date().getFullYear()} The Transporter. All rights reserved.</p>
+            <p className="text-sm text-gray-400">
+              © {new Date().getFullYear()} The Transporter. All rights reserved.
+            </p>
             <div className="flex gap-4">
-              <Link href="/privacy" className="text-sm text-gray-400 hover:text-white">
+              <Link
+                href="/privacy"
+                className="text-sm text-gray-400 hover:text-white"
+              >
                 Privacy
               </Link>
-              <Link href="/terms" className="text-sm text-gray-400 hover:text-white">
+              <Link
+                href="/terms"
+                className="text-sm text-gray-400 hover:text-white"
+              >
                 Terms
               </Link>
-              <Link href="/contact" className="text-sm text-gray-400 hover:text-white">
+              <Link
+                href="/contact"
+                className="text-sm text-gray-400 hover:text-white"
+              >
                 Contact
               </Link>
             </div>
@@ -220,5 +274,5 @@ export default function Home() {
         </footer>
       </div>
     </>
-  )
+  );
 }
