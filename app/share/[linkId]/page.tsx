@@ -64,31 +64,75 @@ export default function SharePage() {
     setIsDownloading(true);
 
     try {
-      const response = await fetch(`/api/download?linkId=${params.linkId}`);
+      console.log("Starting download for linkId:", params.linkId);
+
+      const response = await fetch(`/api/download?linkId=${params.linkId}`, {
+        method: "GET",
+        headers: {
+          Accept: "application/octet-stream, */*",
+        },
+      });
+
+      console.log("Response status:", response.status);
+      console.log(
+        "Response headers:",
+        Object.fromEntries(response.headers.entries())
+      );
 
       if (!response.ok) {
-        // Parse error JSON (if any)
+        const contentType = response.headers.get("content-type");
         let errorMessage = `Failed to download file (status ${response.status})`;
-        try {
-          const errorData = await response.json();
-          errorMessage = errorData.message || errorMessage;
-        } catch {
-          // ignore if JSON parsing fails here
+
+        if (contentType && contentType.includes("application/json")) {
+          try {
+            const errorData = await response.json();
+            errorMessage = errorData.message || errorMessage;
+          } catch (jsonError) {
+            console.error("Failed to parse error response as JSON:", jsonError);
+          }
+        } else {
+          const errorText = await response.text();
+          errorMessage = `Server error: ${errorText.substring(0, 100)}`;
         }
+
         throw new Error(errorMessage);
       }
 
-      // Read response as a blob (binary data)
-      const blob = await response.blob();
+      const contentType = response.headers.get("content-type");
+      console.log("Response content-type:", contentType);
 
-      // Create temporary URL and trigger browser download
+      if (contentType && contentType.includes("application/json")) {
+        throw new Error("Server returned JSON instead of file data.");
+      }
+
+      const blob = await response.blob();
+      console.log("Blob created - size:", blob.size, "type:", blob.type);
+
+      if (blob.size === 0) {
+        throw new Error("Downloaded file is empty");
+      }
+
+      let filename = fileMetadata?.fileName || "download";
+      const contentDisposition = response.headers.get("content-disposition");
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(
+          /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
+        );
+        if (filenameMatch && filenameMatch[1]) {
+          filename = decodeURIComponent(filenameMatch[1].replace(/['"]/g, ""));
+        }
+      }
+
+      console.log("Using filename for download:", filename);
+
       const downloadUrl = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = downloadUrl;
-      a.download = fileMetadata?.fileName || "download";
+      a.download = filename;
+      a.style.display = "none";
       document.body.appendChild(a);
       a.click();
-      a.remove();
+      document.body.removeChild(a);
       window.URL.revokeObjectURL(downloadUrl);
 
       toast({
@@ -96,7 +140,6 @@ export default function SharePage() {
         description: "File downloaded successfully.",
       });
 
-      // Refresh after 3 seconds to update view count or UI
       setTimeout(() => {
         window.location.reload();
       }, 3000);

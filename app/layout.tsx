@@ -1,18 +1,19 @@
-import type React from "react"
-import { Inter } from "next/font/google"
-import type { Metadata } from "next"
-import { Toaster } from "@/components/ui/toaster"
-import { ThemeProvider } from "@/components/theme-provider"
-import { AuthProvider } from "@/components/auth-provider"
-import { QueryProvider } from "@/components/query-provider"
-import { SITE_NAME, SITE_DESCRIPTION, SITE_URL } from "@/lib/constants"
+import type React from "react";
+import { Inter } from "next/font/google";
+import type { Metadata } from "next";
+import { Toaster } from "@/components/ui/toaster";
+import { ThemeProvider } from "@/components/theme-provider";
+import { AuthProvider } from "@/components/auth-provider";
+import { QueryProvider } from "@/components/query-provider";
+import { SITE_NAME, SITE_DESCRIPTION, SITE_URL } from "@/lib/constants";
+// import BubbleChat from "@/components/BubbleChat";
 
-import "./globals.css"
+import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] })
+const inter = Inter({ subsets: ["latin"] });
 
 // Define the absolute URL for the social preview image
-const socialPreviewUrl = `${SITE_URL}/images/social-preview.png`
+const socialPreviewUrl = `${SITE_URL}/images/social-preview.png`;
 
 export const metadata: Metadata = {
   title: {
@@ -47,13 +48,13 @@ export const metadata: Metadata = {
     icon: "/favicon.ico",
     apple: "/apple-icon.png",
   },
-    generator: 'v0.dev'
-}
+  generator: "v0.dev",
+};
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
@@ -63,15 +64,21 @@ export default function RootLayout({
         <meta name="twitter:image" content={socialPreviewUrl} />
       </head>
       <body className={inter.className}>
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem
+          disableTransitionOnChange
+        >
           <QueryProvider>
             <AuthProvider>
               {children}
+              {/* <BubbleChat /> */}
               <Toaster />
             </AuthProvider>
           </QueryProvider>
         </ThemeProvider>
       </body>
     </html>
-  )
+  );
 }

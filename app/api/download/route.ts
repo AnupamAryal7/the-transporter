@@ -12,6 +12,15 @@ export async function GET(request: NextRequest) {
     const requestedFilename = searchParams.get("filename");
     const debug = searchParams.get("debug") === "true";
 
+    console.log("Download request params:", {
+      linkId,
+      isPreview,
+      isMobile,
+      forceDownload,
+      requestedFilename,
+      debug,
+    });
+
     if (!linkId) {
       return NextResponse.json(
         { message: "Link ID is required" },
@@ -79,9 +88,15 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ message: "Link not found" }, { status: 404 });
     }
 
+    console.log("File metadata found:", {
+      fileName: file.file_name,
+      fileSize: file.file_size,
+      views: file.views,
+      maxViews: file.max_views,
+    });
+
     // If this is a preview and the user is logged in, verify ownership
     if (isPreview && userId && file.user_id !== userId) {
-      // For previews, we only allow the file owner to preview
       return NextResponse.json(
         {
           message:
@@ -114,105 +129,68 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    console.log("Attempting to download file from storage:", file.file_path);
+
     // Get the file directly
     const { data: fileData, error: fileDataError } = await supabaseAdmin.storage
       .from("secure-files")
       .download(file.file_path);
 
     if (fileDataError || !fileData) {
-      console.error("Error downloading file:", fileDataError);
-      throw fileDataError || new Error("Failed to download file");
+      console.error("Error downloading file from storage:", fileDataError);
+      return NextResponse.json(
+        { message: "Failed to retrieve file from storage" },
+        { status: 500 }
+      );
     }
+
+    console.log("File downloaded from storage successfully");
 
     // Convert the file to a buffer
     const buffer = await fileData.arrayBuffer();
+    console.log("File converted to buffer, size:", buffer.byteLength);
 
     // Determine the content type
     const contentType = getContentType(file.file_name);
+    console.log("Determined content type:", contentType);
 
     // Use the requested filename if provided, otherwise use the original
     const filename = requestedFilename || file.file_name;
 
-    // For direct download (mobile or forced download)
-    if (isMobile || forceDownload || !isPreview) {
-      // If debug mode is enabled, return information about the file
-      if (debug) {
-        return NextResponse.json({
-          message: "Debug information",
-          filename,
-          contentType,
-          fileSize: file.file_size,
-          headers: {
-            "Content-Type": contentType,
-            "Content-Disposition": `attachment; filename="${encodeURIComponent(
-              filename
-            )}"`,
-            "Content-Length": file.file_size.toString(),
-            "Cache-Control": "no-store, must-revalidate",
-            Pragma: "no-cache",
-            Expires: "0",
-            "X-Content-Type-Options": "nosniff",
-          },
-        });
-      }
+    console.log("Returning file as attachment download with headers:", {
+      "Content-Type": contentType,
+      "Content-Disposition": `attachment; filename="${encodeURIComponent(
+        filename
+      )}"`,
+      "Content-Length": buffer.byteLength.toString(),
+    });
 
-      // Return the file as a direct download with appropriate headers
-      return new NextResponse(buffer, {
-        status: 200,
-        headers: {
-          "Content-Type": contentType,
-          "Content-Disposition": `attachment; filename="${encodeURIComponent(
-            filename
-          )}"`,
-          "Content-Length": file.file_size.toString(),
-          "Cache-Control": "no-store, must-revalidate",
-          Pragma: "no-cache",
-          Expires: "0",
-          // Add additional headers to help with mobile downloads
-          "X-Content-Type-Options": "nosniff",
-          // Add CORS headers
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type, Authorization",
-        },
-      });
-    } else {
-      // For preview, just return the file with inline disposition
-      return new NextResponse(buffer, {
-        status: 200,
-        headers: {
-          "Content-Type": contentType,
-          "Content-Disposition": `inline; filename="${encodeURIComponent(
-            filename
-          )}"`,
-          "Content-Length": file.file_size.toString(),
-          "Cache-Control": "no-store, must-revalidate",
-          // Add CORS headers
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type, Authorization",
-        },
-      });
-    }
+    // Return the file as a direct download with appropriate headers
+    return new NextResponse(buffer, {
+      status: 200,
+      headers: {
+        "Content-Type": contentType,
+        "Content-Disposition": `attachment; filename="${encodeURIComponent(
+          filename
+        )}"`,
+        "Content-Length": buffer.byteLength.toString(),
+        "Cache-Control": "no-store, must-revalidate",
+        Pragma: "no-cache",
+        Expires: "0",
+        "X-Content-Type-Options": "nosniff",
+      },
+    });
   } catch (error: any) {
     console.error("Download error:", error);
     return NextResponse.json(
       {
         message: error.message || "Failed to generate download link",
-        // Only include stack trace in development
+        error: error.toString(),
         stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
       },
       { status: 500 }
     );
   }
-}
-
-// Helper function to format file size
-function formatFileSize(bytes: number) {
-  if (bytes < 1024) return bytes + " bytes";
-  else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + " KB";
-  else if (bytes < 1073741824) return (bytes / 1048576).toFixed(1) + " MB";
-  else return (bytes / 1073741824).toFixed(1) + " GB";
 }
 
 // Helper function to determine content type based on file extension
