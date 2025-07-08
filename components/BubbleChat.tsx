@@ -43,6 +43,10 @@ const BubbleChat: React.FC<BubbleChatProps> = ({
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [hasNewMessage, setHasNewMessage] = useState(false);
+
+  // Generate session ID once and keep it persistent
+  const [sessionId] = useState(() => crypto.randomUUID());
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -91,10 +95,11 @@ const BubbleChat: React.FC<BubbleChatProps> = ({
     try {
       const response = await fetch(apiEndpoint, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ message }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: message,
+          sessionId: sessionId,
+        }),
       });
 
       if (!response.ok) {
@@ -103,6 +108,9 @@ const BubbleChat: React.FC<BubbleChatProps> = ({
       }
 
       const data = await response.json();
+      console.log("Response:", data.response);
+      console.log("Total messages in conversation:", data.messageCount);
+
       return data.response;
     } catch (error) {
       console.error("Error calling AI API:", error);
