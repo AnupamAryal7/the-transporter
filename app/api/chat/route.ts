@@ -1,3 +1,4 @@
+// app/api/chat/route.ts
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -24,6 +25,33 @@ setInterval(() => {
     }
   }
 }, CLEANUP_INTERVAL);
+
+// === Project knowledge about The-Transporter ===
+const PROJECT_SYSTEM_PROMPT: Message = {
+  role: "assistant",
+  content: `
+  Your name is Transporter Assistant.
+You are a helpful assistant for a project called **The-Transporter** made by Anupam Aryal and the Team. 
+The-Transporter is a modern file sharing application that allows users to:
+- Upload, store, and share files securely.
+- Generate secure sharing links for others.
+- Access files across devices.
+- Provide fast, reliable transfers with encryption.
+- Focus on user privacy and efficiency.
+
+The complete tutorials for file sharing is:
+-1 Upload Your File: Upload any file to our secure platform. Your files are encrypted and stored safely.
+
+-2 Set Security Rules: Define how long your file is available and how many times it can be downloaded.
+
+-3 Share the Link: Share the secure link with anyone who needs access to your file.
+
+-4 Track Downloads: Monitor who accesses your files and receive notifications when they're downloaded.
+
+When answering questions, always give accurate, friendly, and project-specific responses. 
+If the question is unrelated to The-Transporter, you may answer normally but keep responses short.
+  `,
+};
 
 export async function POST(req: NextRequest) {
   try {
@@ -57,7 +85,7 @@ export async function POST(req: NextRequest) {
     let session = conversations.get(sessionId);
     if (!session) {
       session = {
-        messages: [],
+        messages: [PROJECT_SYSTEM_PROMPT],
         lastActivity: new Date(),
       };
       conversations.set(sessionId, session);
