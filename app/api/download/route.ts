@@ -11,6 +11,7 @@ export async function GET(request: NextRequest) {
     const forceDownload = searchParams.get("download") === "true";
     const requestedFilename = searchParams.get("filename");
     const debug = searchParams.get("debug") === "true";
+    const jsonResponse = searchParams.get("json") === "true";
 
     console.log("Download request params:", {
       linkId,
@@ -19,13 +20,20 @@ export async function GET(request: NextRequest) {
       forceDownload,
       requestedFilename,
       debug,
+      jsonResponse,
     });
 
+    // Check if client wants JSON response
+    const acceptHeader = request.headers.get("accept");
+    const wantsJson =
+      jsonResponse || acceptHeader?.includes("application/json") || debug;
+
     if (!linkId) {
-      return NextResponse.json(
-        { message: "Link ID is required" },
-        { status: 400 }
-      );
+      return wantsJson
+        ? NextResponse.json({ message: "Link ID is required" }, { status: 400 })
+        : NextResponse.redirect(
+            new URL("/error?message=Link+ID+required", request.url)
+          );
     }
 
     // Check if environment variables are defined
@@ -35,10 +43,14 @@ export async function GET(request: NextRequest) {
 
     if (!supabaseUrl || !supabaseAnonKey || !supabaseServiceKey) {
       console.error("Supabase environment variables are not defined");
-      return NextResponse.json(
-        { message: "Server configuration error. Please contact support." },
-        { status: 500 }
-      );
+      return wantsJson
+        ? NextResponse.json(
+            { message: "Server configuration error" },
+            { status: 500 }
+          )
+        : NextResponse.redirect(
+            new URL("/error?message=Server+error", request.url)
+          );
     }
 
     // Get the authenticated user (if any)
@@ -85,7 +97,11 @@ export async function GET(request: NextRequest) {
 
     if (fileError || !file) {
       console.error("Error fetching file metadata:", fileError);
-      return NextResponse.json({ message: "Link not found" }, { status: 404 });
+      return wantsJson
+        ? NextResponse.json({ message: "Link not found" }, { status: 404 })
+        : NextResponse.redirect(
+            new URL("/error?message=Link+not+found", request.url)
+          );
     }
 
     console.log("File metadata found:", {
@@ -97,13 +113,30 @@ export async function GET(request: NextRequest) {
 
     // If this is a preview and the user is logged in, verify ownership
     if (isPreview && userId && file.user_id !== userId) {
-      return NextResponse.json(
-        {
-          message:
-            "Unauthorized: You don't have permission to preview this file",
+      return wantsJson
+        ? NextResponse.json(
+            { message: "Unauthorized to preview this file" },
+            { status: 403 }
+          )
+        : NextResponse.redirect(
+            new URL("/error?message=Unauthorized", request.url)
+          );
+    }
+
+    // For JSON responses, return file metadata without downloading
+    if (wantsJson && !forceDownload) {
+      return NextResponse.json({
+        file: {
+          name: file.file_name,
+          size: file.file_size,
+          type: getContentType(file.file_name),
+          expiresAt: file.expires_at,
+          views: file.views,
+          maxViews: file.max_views,
+          isExpired: new Date() > new Date(file.expires_at),
+          viewsExceeded: file.views >= file.max_views,
         },
-        { status: 403 }
-      );
+      });
     }
 
     // For non-preview (actual downloads), anyone with the link can download
@@ -111,10 +144,14 @@ export async function GET(request: NextRequest) {
     const now = new Date();
     const expiresAt = new Date(file.expires_at);
     if (now > expiresAt || file.views >= file.max_views) {
-      return NextResponse.json(
-        { message: "Link expired or maximum views reached" },
-        { status: 410 }
-      );
+      return wantsJson
+        ? NextResponse.json(
+            { message: "Link expired or maximum views reached" },
+            { status: 410 }
+          )
+        : NextResponse.redirect(
+            new URL("/error?message=Link+expired", request.url)
+          );
     }
 
     // Only increment view count if it's not a preview
@@ -138,10 +175,14 @@ export async function GET(request: NextRequest) {
 
     if (fileDataError || !fileData) {
       console.error("Error downloading file from storage:", fileDataError);
-      return NextResponse.json(
-        { message: "Failed to retrieve file from storage" },
-        { status: 500 }
-      );
+      return wantsJson
+        ? NextResponse.json(
+            { message: "Failed to retrieve file from storage" },
+            { status: 500 }
+          )
+        : NextResponse.redirect(
+            new URL("/error?message=File+not+found", request.url)
+          );
     }
 
     console.log("File downloaded from storage successfully");
