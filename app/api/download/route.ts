@@ -296,6 +296,18 @@ function getContentType(fileName: string): string {
     tar: "application/x-tar",
     gz: "application/gzip",
 
+    // Code
+    java: "text/x-java-source",
+    py: "text/x-python",
+    c: "text/x-c",
+    cpp: "text/x-c++",
+    h: "text/x-c",
+    cs: "text/x-csharp",
+    php: "application/x-php",
+    rb: "application/x-ruby",
+    go: "application/x-go",
+    swift: "text/x-swift",
+
     // Other common types
     exe: "application/octet-stream",
     dll: "application/octet-stream",
