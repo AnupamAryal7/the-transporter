@@ -11,7 +11,7 @@ export interface FileMetadata {
 
 export async function getFileMetadata(linkId: string): Promise<FileMetadata> {
   const response = await fetch(
-    `/api/admin/download?linkId=${linkId}&json=true`
+    `/api/download?linkId=${linkId}&json=true`
   );
 
   if (!response.ok) {
@@ -26,16 +26,18 @@ export async function downloadFile(
   linkId: string,
   filename?: string
 ): Promise<void> {
-  // Create download URL
-  const url = new URL("/api/admin/download", window.location.origin);
-  url.searchParams.set("linkId", linkId);
+  // Build query params
+  const params = new URLSearchParams({ linkId });
   if (filename) {
-    url.searchParams.set("filename", filename);
+    params.set("filename", filename);
   }
+
+  // Use relative URL to ensure it uses the current origin (localhost in dev)
+  const downloadUrl = `/api/download?${params.toString()}`;
 
   // Use traditional anchor download for better reliability
   const anchor = document.createElement("a");
-  anchor.href = url.toString();
+  anchor.href = downloadUrl;
   anchor.download = filename || "download";
   anchor.style.display = "none";
   document.body.appendChild(anchor);

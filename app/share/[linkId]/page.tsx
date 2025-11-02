@@ -39,14 +39,20 @@ export default function SharePage() {
   } = useQuery({
     queryKey: ["file-metadata", params.linkId],
     queryFn: async () => {
+      console.log("Fetching metadata for linkId:", params.linkId);
       const response = await fetch(`/api/validateLink?linkId=${params.linkId}`);
+      console.log("ValidateLink response status:", response.status);
+
       if (!response.ok) {
         const errorData = await response.json();
+        console.error("ValidateLink error:", errorData);
         throw new Error(
           errorData.message || `Failed to validate ${TERMS.link.toLowerCase()}`
         );
       }
-      return response.json() as Promise<FileMetadata>;
+      const data = await response.json();
+      console.log("ValidateLink response data:", data);
+      return data as FileMetadata;
     },
   });
 

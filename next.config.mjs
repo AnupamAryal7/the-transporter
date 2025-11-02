@@ -1,8 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  env: {
-    NEXT_PUBLIC_SITE_URL: 'https://thetransporter.biwas.xyz',
-  },
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -10,7 +7,7 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    domains: ['thetransporter.biwas.xyz'],
+    domains: ['thetransporter.biwas.xyz', 'localhost'],
     unoptimized: true,
   },
 }
