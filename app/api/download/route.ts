@@ -3,6 +3,9 @@ import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
 
 export async function GET(request: NextRequest) {
+  // Declare wantsJson early so it's available in catch block
+  let wantsJson = false;
+
   try {
     const { searchParams } = new URL(request.url);
     const linkId = searchParams.get("linkId");
@@ -25,7 +28,7 @@ export async function GET(request: NextRequest) {
 
     // Check if client wants JSON response
     const acceptHeader = request.headers.get("accept");
-    const wantsJson =
+    wantsJson =
       jsonResponse || acceptHeader?.includes("application/json") || debug;
 
     if (!linkId) {
@@ -223,14 +226,29 @@ export async function GET(request: NextRequest) {
     });
   } catch (error: any) {
     console.error("Download error:", error);
-    return NextResponse.json(
-      {
-        message: error.message || "Failed to generate download link",
-        error: error.toString(),
-        stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
-      },
-      { status: 500 }
-    );
+
+    // Return appropriate error format based on what client expects
+    if (wantsJson) {
+      return NextResponse.json(
+        {
+          message: error.message || "Failed to download file",
+          error: error.toString(),
+          stack:
+            process.env.NODE_ENV === "development" ? error.stack : undefined,
+        },
+        { status: 500 }
+      );
+    } else {
+      // For blob requests, redirect to error page instead of returning JSON
+      return NextResponse.redirect(
+        new URL(
+          `/error?message=${encodeURIComponent(
+            error.message || "Download failed"
+          )}`,
+          request.url
+        )
+      );
+    }
   }
 }
 
@@ -272,6 +290,18 @@ function getContentType(fileName: string): string {
     xml: "application/xml",
     md: "text/markdown",
 
+    // Code
+    java: "text/x-java-source",
+    py: "text/x-python",
+    c: "text/x-c",
+    cpp: "text/x-c++",
+    h: "text/x-c",
+    cs: "text/x-csharp",
+    php: "application/x-php",
+    rb: "application/x-ruby",
+    go: "application/x-go",
+    swift: "text/x-swift",
+
     // Audio
     mp3: "audio/mpeg",
     wav: "audio/wav",
@@ -296,19 +326,7 @@ function getContentType(fileName: string): string {
     tar: "application/x-tar",
     gz: "application/gzip",
 
-    // Code
-    java: "text/x-java-source",
-    py: "text/x-python",
-    c: "text/x-c",
-    cpp: "text/x-c++",
-    h: "text/x-c",
-    cs: "text/x-csharp",
-    php: "application/x-php",
-    rb: "application/x-ruby",
-    go: "application/x-go",
-    swift: "text/x-swift",
-
-    // Other common types
+    // Other usual types
     exe: "application/octet-stream",
     dll: "application/octet-stream",
     apk: "application/vnd.android.package-archive",
