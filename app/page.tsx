@@ -136,8 +136,8 @@ export default function Home() {
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold mb-4">How It Works</h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
-                The Transporter delivers your files securely and efficiently,
-                just like in the movie.
+                Office file transporter delivers your files securely and
+                efficiently, just like in the movie.
               </p>
             </div>
 
@@ -146,7 +146,7 @@ export default function Home() {
                 <div className="relative aspect-[3/4] w-full max-w-md mx-auto rounded-lg overflow-hidden shadow-xl">
                   {/* Use a portion of the image that focuses on the character */}
                   <Image
-                    src="/images/the-transporter-poster.jpeg"
+                    src="/images/the-transporter.jpeg"
                     alt="The Transporter - Secure File Delivery Service"
                     fill
                     className="object-cover object-[30%_20%]"
@@ -155,7 +155,7 @@ export default function Home() {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
                   <div className="absolute bottom-0 left-0 right-0 p-6">
                     <div className="inline-block bg-primary text-white px-4 py-2 rounded-md font-bold">
-                      The Transporter
+                      Office File Transporter
                     </div>
                   </div>
                 </div>
@@ -166,6 +166,20 @@ export default function Home() {
                   <div className="flex gap-4 items-start">
                     <div className="bg-primary/10 rounded-full p-3 mt-1">
                       <span className="font-bold text-primary">1</span>
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-semibold mb-2">
+                        Login to a Organization First
+                      </h3>
+                      <p className="text-muted-foreground">
+                        Login to organization for sending organizational data
+                        for more secure transfer.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex gap-4 items-start">
+                    <div className="bg-primary/10 rounded-full p-3 mt-1">
+                      <span className="font-bold text-primary">2</span>
                     </div>
                     <div>
                       <h3 className="text-xl font-semibold mb-2">
@@ -180,7 +194,7 @@ export default function Home() {
 
                   <div className="flex gap-4 items-start">
                     <div className="bg-primary/10 rounded-full p-3 mt-1">
-                      <span className="font-bold text-primary">2</span>
+                      <span className="font-bold text-primary">3</span>
                     </div>
                     <div>
                       <h3 className="text-xl font-semibold mb-2">
@@ -195,7 +209,7 @@ export default function Home() {
 
                   <div className="flex gap-4 items-start">
                     <div className="bg-primary/10 rounded-full p-3 mt-1">
-                      <span className="font-bold text-primary">3</span>
+                      <span className="font-bold text-primary">4</span>
                     </div>
                     <div>
                       <h3 className="text-xl font-semibold mb-2">
@@ -210,7 +224,7 @@ export default function Home() {
 
                   <div className="flex gap-4 items-start">
                     <div className="bg-primary/10 rounded-full p-3 mt-1">
-                      <span className="font-bold text-primary">4</span>
+                      <span className="font-bold text-primary">5</span>
                     </div>
                     <div>
                       <h3 className="text-xl font-semibold mb-2">
