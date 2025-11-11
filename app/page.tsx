@@ -38,8 +38,10 @@ export default function Home() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
               <div className="order-2 md:order-1">
                 <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">
-                  Secure file delivery with{" "}
-                  <span className="text-primary">no questions asked</span>
+                  Share Private File with{" "}
+                  <span className="text-primary">
+                    Organized and Traceable Office File Mangaement
+                  </span>
                 </h1>
                 <p className="text-lg text-muted-foreground mb-8">
                   Upload, share, and protect your files with military-grade
@@ -67,7 +69,7 @@ export default function Home() {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent z-10"></div>
                   <Image
                     src="/images/the-transporter-poster.jpeg"
-                    alt="The Transporter - Secure File Sharing Service"
+                    alt="Office File Management Hero Section Image"
                     fill
                     className="object-cover object-center"
                     sizes="(max-width: 768px) 100vw, 50vw"
