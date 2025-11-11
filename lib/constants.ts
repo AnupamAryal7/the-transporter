@@ -1,7 +1,7 @@
 // Site configuration
-export const SITE_NAME = "The Transporter";
+export const SITE_NAME = "Office FIle Management";
 export const SITE_DESCRIPTION =
-  "Secure file delivery with military-grade encryption, time-limited access, and download limits. Transport your files securely with no questions asked.";
+  "Secure file delivery with military-grade encryption, time-limited access, and download limits in a particular Organization or Office. Transport your files securely with no questions asked.";
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL;
 
 // Theme colors - updated to match The Transporter movie poster
