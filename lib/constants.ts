@@ -1,5 +1,5 @@
 // Site configuration
-export const SITE_NAME = "Office Management System";
+export const SITE_NAME = "Office FIle Management";
 export const SITE_DESCRIPTION =
   "Secure file delivery with military-grade encryption, time-limited access, and download limits in a particular Organization or Office. Transport your files securely with no questions asked.";
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL;
