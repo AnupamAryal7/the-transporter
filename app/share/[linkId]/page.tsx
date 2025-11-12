@@ -10,6 +10,8 @@ import {
   AlertTriangle,
   Loader2,
   Download,
+  Building,
+  Users,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -17,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { TERMS } from "@/lib/constants";
+import { useAuth } from "@/components/auth-provider";
 
 type FileMetadata = {
   fileName: string;
@@ -25,11 +28,13 @@ type FileMetadata = {
   maxViews: number;
   views: number;
   isExpired: boolean;
+  isOrganizationFile?: boolean;
 };
 
 export default function SharePage() {
   const params = useParams<{ linkId: string }>();
   const { toast } = useToast();
+  const { user } = useAuth();
   const [isDownloading, setIsDownloading] = useState(false);
 
   const {
@@ -165,6 +170,9 @@ export default function SharePage() {
     }
   };
 
+  // Show login prompt for organization files when user is not logged in
+  const showLoginPrompt = fileMetadata?.isOrganizationFile && !user;
+
   return (
     <>
       {isLoading ? (
@@ -197,6 +205,18 @@ export default function SharePage() {
             <Button>Go to homepage</Button>
           </Link>
         </div>
+      ) : showLoginPrompt ? (
+        <div className="text-center py-12 border rounded-lg">
+          <Building className="h-12 w-12 text-primary mx-auto mb-4" />
+          <h3 className="text-xl font-medium mb-2">Organization File</h3>
+          <p className="text-muted-foreground mb-6">
+            This file is shared within an organization. Please log in to access
+            it.
+          </p>
+          <Link href={`/login?redirect=/share/${params.linkId}`}>
+            <Button>Log In to Access</Button>
+          </Link>
+        </div>
       ) : (
         <div className="border rounded-lg overflow-hidden">
           <div className="p-6 bg-muted/30">
@@ -211,6 +231,16 @@ export default function SharePage() {
             <p className="text-center text-muted-foreground">
               {formatFileSize(fileMetadata.fileSize)}
             </p>
+
+            {/* Organization File Badge */}
+            {fileMetadata.isOrganizationFile && (
+              <div className="flex justify-center mt-3">
+                <div className="flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
+                  <Building className="h-3 w-3" />
+                  <span>Organization File</span>
+                </div>
+              </div>
+            )}
           </div>
           <div className="p-6 space-y-6">
             <div className="grid grid-cols-2 gap-4">
@@ -259,6 +289,8 @@ export default function SharePage() {
               {TERMS.download.toLowerCase()} {TERMS.link.toLowerCase()} will
               expire after {fileMetadata.maxViews} {TERMS.views.toLowerCase()}{" "}
               or on {format(new Date(fileMetadata.expiresAt), "MMMM d, yyyy")}.
+              {fileMetadata.isOrganizationFile &&
+                " This is an organization file."}
             </p>
           </div>
         </div>
