@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
+import { canAccessFileByLinkId } from "@/lib/organization-auth";
 
 export async function GET(request: NextRequest) {
   // Declare wantsJson early so it's available in catch block
@@ -112,7 +113,41 @@ export async function GET(request: NextRequest) {
       fileSize: file.file_size,
       views: file.views,
       maxViews: file.max_views,
+      organizationId: file.organization_id,
+      userId: file.user_id,
     });
+
+    // ORGANIZATION ACCESS CHECK - Add this section
+    if (file.organization_id) {
+      // This is an organization file - check if user has access
+      if (!userId) {
+        console.log("Organization file requires authentication");
+        return wantsJson
+          ? NextResponse.json(
+              { message: "Authentication required for organization files" },
+              { status: 401 }
+            )
+          : NextResponse.redirect(
+              new URL("/login?redirect=/share/" + linkId, request.url)
+            );
+      }
+
+      const canAccess = await canAccessFileByLinkId(userId, linkId);
+      if (!canAccess) {
+        console.log("User does not have access to this organization file");
+        return wantsJson
+          ? NextResponse.json(
+              { message: "Access denied to organization file" },
+              { status: 403 }
+            )
+          : NextResponse.redirect(
+              new URL(
+                "/error?message=Access+denied+to+organization+file",
+                request.url
+              )
+            );
+      }
+    }
 
     // If this is a preview and the user is logged in, verify ownership
     if (isPreview && userId && file.user_id !== userId) {
@@ -138,11 +173,14 @@ export async function GET(request: NextRequest) {
           maxViews: file.max_views,
           isExpired: new Date() > new Date(file.expires_at),
           viewsExceeded: file.views >= file.max_views,
+          isOrganizationFile: !!file.organization_id, // Add this field
         },
       });
     }
 
-    // For non-preview (actual downloads), anyone with the link can download
+    // For non-preview (actual downloads), anyone with the link can download personal files
+    // But organization files require authentication (already checked above)
+
     // Check if link is expired
     const now = new Date();
     const expiresAt = new Date(file.expires_at);
