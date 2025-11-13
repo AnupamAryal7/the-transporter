@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
+import { canAccessOrganizationFileByLinkId } from "@/lib/organization-access";
 
 export async function GET(request: NextRequest) {
   try {
@@ -50,6 +51,34 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ message: "Link not found" }, { status: 404 });
     }
 
+    // ORGANIZATION ACCESS CHECK - Add this section
+    if (file.organization_id) {
+      // This is an organization file - check if user has access
+      if (!userId) {
+        console.log("Organization file requires authentication");
+        return NextResponse.json(
+          {
+            message: "Authentication required for organization files",
+            error: "AUTHENTICATION_REQUIRED",
+          },
+          { status: 401 }
+        );
+      }
+
+      // Check if user can access this organization file
+      const canAccess = await canAccessOrganizationFileByLinkId(userId, linkId);
+      if (!canAccess) {
+        console.log("User does not have access to this organization file");
+        return NextResponse.json(
+          {
+            message: "Access denied to organization file",
+            error: "ORGANIZATION_ACCESS_DENIED",
+          },
+          { status: 403 }
+        );
+      }
+    }
+
     // Check if link is expired
     const now = new Date();
     const expiresAt = new Date(file.expires_at);
@@ -74,6 +103,7 @@ export async function GET(request: NextRequest) {
       maxViews: file.max_views,
       views: file.views,
       isExpired,
+      isOrganizationFile: !!file.organization_id, // Add this field
       // Only include owner-specific information if the user is the owner
       isOwner: userId === file.user_id,
     });

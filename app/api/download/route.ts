@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
-import { canAccessFileByLinkId } from "@/lib/organization-auth";
+import { canAccessOrganizationFileByLinkId } from "@/lib/organization-access"; // Updated import
 
 export async function GET(request: NextRequest) {
   // Declare wantsJson early so it's available in catch block
@@ -117,7 +117,7 @@ export async function GET(request: NextRequest) {
       userId: file.user_id,
     });
 
-    // ORGANIZATION ACCESS CHECK - Add this section
+    // UPDATED ORGANIZATION ACCESS CHECK - Using the new function
     if (file.organization_id) {
       // This is an organization file - check if user has access
       if (!userId) {
@@ -132,17 +132,18 @@ export async function GET(request: NextRequest) {
             );
       }
 
-      const canAccess = await canAccessFileByLinkId(userId, linkId);
+      // Use the new organization access check function
+      const canAccess = await canAccessOrganizationFileByLinkId(userId, linkId);
       if (!canAccess) {
         console.log("User does not have access to this organization file");
         return wantsJson
           ? NextResponse.json(
-              { message: "Access denied to organization file" },
+              { message: "You are not a member of this organization" }, // Updated message
               { status: 403 }
             )
           : NextResponse.redirect(
               new URL(
-                "/error?message=Access+denied+to+organization+file",
+                "/error?message=You+are+not+a+member+of+this+organization",
                 request.url
               )
             );
@@ -173,7 +174,7 @@ export async function GET(request: NextRequest) {
           maxViews: file.max_views,
           isExpired: new Date() > new Date(file.expires_at),
           viewsExceeded: file.views >= file.max_views,
-          isOrganizationFile: !!file.organization_id, // Add this field
+          isOrganizationFile: !!file.organization_id,
         },
       });
     }
@@ -295,7 +296,7 @@ function getContentType(fileName: string): string {
   const extension = fileName.split(".").pop()?.toLowerCase() || "";
 
   const mimeTypes: Record<string, string> = {
-    // Images
+    // ... keep your existing mimeTypes object exactly as it is ...
     jpg: "image/jpeg",
     jpeg: "image/jpeg",
     png: "image/png",
@@ -306,8 +307,6 @@ function getContentType(fileName: string): string {
     ico: "image/x-icon",
     tiff: "image/tiff",
     tif: "image/tiff",
-
-    // Documents
     pdf: "application/pdf",
     doc: "application/msword",
     docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -316,8 +315,6 @@ function getContentType(fileName: string): string {
     ppt: "application/vnd.ms-powerpoint",
     pptx: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
     rtf: "application/rtf",
-
-    // Text
     txt: "text/plain",
     csv: "text/csv",
     html: "text/html",
@@ -327,8 +324,6 @@ function getContentType(fileName: string): string {
     json: "application/json",
     xml: "application/xml",
     md: "text/markdown",
-
-    // Code
     java: "text/x-java-source",
     py: "text/x-python",
     c: "text/x-c",
@@ -339,16 +334,12 @@ function getContentType(fileName: string): string {
     rb: "application/x-ruby",
     go: "application/x-go",
     swift: "text/x-swift",
-
-    // Audio
     mp3: "audio/mpeg",
     wav: "audio/wav",
     ogg: "audio/ogg",
     m4a: "audio/mp4",
     flac: "audio/flac",
     aac: "audio/aac",
-
-    // Video
     mp4: "video/mp4",
     webm: "video/webm",
     avi: "video/x-msvideo",
@@ -356,15 +347,11 @@ function getContentType(fileName: string): string {
     wmv: "video/x-ms-wmv",
     mkv: "video/x-matroska",
     flv: "video/x-flv",
-
-    // Archives
     zip: "application/zip",
     rar: "application/x-rar-compressed",
     "7z": "application/x-7z-compressed",
     tar: "application/x-tar",
     gz: "application/gzip",
-
-    // Other usual types
     exe: "application/octet-stream",
     dll: "application/octet-stream",
     apk: "application/vnd.android.package-archive",
