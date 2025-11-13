@@ -39,7 +39,7 @@ export default function Home() {
               <div className="order-2 md:order-1">
                 <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">
                   Share Private File with{" "}
-                  <span className="text-primary">
+                  <span className="text-green-700">
                     Organized and Traceable Office File Mangaement
                   </span>
                 </h1>

@@ -91,7 +91,7 @@ export function Header() {
           {/* Organization Info - Center of Header */}
           {user && organization && (
             <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-lg border">
-              <Building className="h-4 w-4 text-primary" />
+              <Building className="h-4 w-4 text-primary text-blue-950" />
               <span className="font-medium text-sm">{organization.name}</span>
               <span className="text-xs text-muted-foreground capitalize">
                 ({organization.userRole})

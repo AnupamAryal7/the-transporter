@@ -6,7 +6,7 @@ export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL;
 
 // Theme colors - updated to match The Transporter movie poster
 export const THEME_COLORS = {
-  primary: "#FF9500", // Orange from The Transporter logo
+  primary: "#006AFF", // Blue from The Transporter logo
   secondary: "#000000", // Black
   accent: "#FFD700", // Gold accent
 };
