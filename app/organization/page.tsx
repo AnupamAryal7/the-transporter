@@ -48,6 +48,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { TERMS } from "@/lib/constants";
+import { Header } from "@/components/header";
 
 export default function OrganizationPage() {
   const { user } = useAuth();
@@ -150,6 +151,7 @@ export default function OrganizationPage() {
   if (!organization) {
     return (
       <div className="container mx-auto py-8 text-center">
+        <Header />
         <Building className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
         <h1 className="text-2xl font-bold mb-2">No Organization</h1>
         <p className="text-muted-foreground mb-4">
@@ -166,6 +168,7 @@ export default function OrganizationPage() {
   return (
     <div className="container mx-auto py-8">
       {/* Header */}
+      <Header />
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-bold flex items-center gap-2">
